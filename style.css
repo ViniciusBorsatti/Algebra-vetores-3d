@@ -426,6 +426,18 @@ button { cursor: pointer; }
 .view-tools button:hover { background: rgba(27, 34, 51, 0.07); color: var(--ink); }
 .view-tools button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
 
+/* ---------- créditos ---------- */
+
+.credits {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.credits b { font-weight: 500; color: var(--ink-2); }
+
 /* ---------- focus ---------- */
 
 :focus-visible {
@@ -446,7 +458,7 @@ button { cursor: pointer; }
     padding: 12px;
   }
   .vector { padding: 5px 6px 5px 8px; }
-  .presets { display: none; }
+  .presets, .credits { display: none; }
   .btn-add { padding: 7px 10px; margin-top: 6px; }
   .vector { grid-template-columns: 12px 30px auto auto 1fr auto 1fr auto 1fr auto 20px; }
   .mod { display: none; }

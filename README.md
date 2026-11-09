@@ -7,7 +7,6 @@
 Visualizador interativo de vetores em três dimensões. Digite as coordenadas, veja as setas aparecerem no espaço e gire a cena para enxergar de qualquer ângulo.
 
 Trabalho prático da disciplina de Álgebra Linear do curso de Ciência da Computação do **Instituto Federal Catarinense – Campus Concórdia**.
-Grupo: Vinicius Borsatti, Lorenzo e Arthur.
 
 O projeto foi feito para a instituição: a ideia é que professores e estudantes do IFC possam usar a ferramenta em aula, como apoio para enxergar vetores, soma, subtração, produto vetorial e ângulo entre vetores, em vez de depender só do desenho no quadro.
 
@@ -39,6 +38,16 @@ python3 -m http.server 8000
 ```
 
 Ou abrir pelo GitHub Pages do repositório.
+
+## Autores
+
+| Nome | GitHub |
+|------|--------|
+| Vinicius Borsatti | [@ViniciusBorsatti](https://github.com/ViniciusBorsatti) |
+| Lorenzo | — |
+| Arthur | — |
+
+Disciplina de Álgebra Linear · Ciência da Computação · IFC Campus Concórdia · 2026
 
 ## Tecnologias
 
