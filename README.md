@@ -1,9 +1,15 @@
+<p align="center">
+  <img src="assets/ifc-logo.png" alt="Instituto Federal Catarinense" width="160">
+</p>
+
 # Vetores 3D
 
 Visualizador interativo de vetores em três dimensões. Digite as coordenadas, veja as setas aparecerem no espaço e gire a cena para enxergar de qualquer ângulo.
 
-Trabalho prático de Álgebra Linear — Ciência da Computação, IFC Concórdia.
+Trabalho prático da disciplina de Álgebra Linear do curso de Ciência da Computação do **Instituto Federal Catarinense – Campus Concórdia**.
 Grupo: Vinicius Borsatti, Lorenzo e Arthur.
+
+O projeto foi feito para a instituição: a ideia é que professores e estudantes do IFC possam usar a ferramenta em aula, como apoio para enxergar vetores, soma, subtração, produto vetorial e ângulo entre vetores, em vez de depender só do desenho no quadro.
 
 ## O que dá pra fazer
 

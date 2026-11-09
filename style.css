@@ -71,10 +71,25 @@ button { cursor: pointer; }
 
 .brand {
   position: fixed;
-  top: 28px;
-  right: 32px;
+  top: 24px;
+  right: 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
   text-align: right;
   pointer-events: none;
+}
+.brand-logo {
+  order: 2;
+  width: 96px;
+  height: auto;
+  flex: none;
+}
+.brand-text { order: 1; }
+.brand-school {
+  color: var(--ink-2) !important;
+  font-weight: 500;
+  margin-top: 2px !important;
 }
 .brand h1 {
   margin: 0;
@@ -422,6 +437,7 @@ button { cursor: pointer; }
 
 @media (max-width: 760px) {
   .brand { display: none; }
+  .mobile-logo { display: block; }
   .panel {
     top: 12px;
     left: 12px;
