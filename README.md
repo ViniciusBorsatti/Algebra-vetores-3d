@@ -9,6 +9,7 @@ Grupo: Vinicius Borsatti, Lorenzo e Arthur.
 
 - Adicionar quantos vetores quiser, cada um com nome, cor e coordenadas (x, y, z)
 - Editar os valores e ver a seta deslizar até a nova posição
+- Arrastar a ponta da seta com o mouse para mover o vetor; com Shift, muda a altura (z)
 - Girar (arrastar), aproximar (rolar) e voltar à vista inicial
 - Escolher dois vetores e ver:
   - **Soma** — seta da origem até a + b

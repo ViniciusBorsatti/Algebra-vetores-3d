@@ -86,7 +86,7 @@ button { cursor: pointer; }
   margin: 4px 0 0;
   color: var(--muted);
   font-size: 13.5px;
-  max-width: 32ch;
+  max-width: 36ch;
 }
 
 /* ---------- panel ---------- */
@@ -159,6 +159,7 @@ button { cursor: pointer; }
   transform: translateX(-16px) scale(0.98);
   pointer-events: none;
 }
+.vector.dragging,
 .vector:focus-within {
   border-color: var(--vc, var(--ink));
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--vc, var(--ink)) 18%, transparent);

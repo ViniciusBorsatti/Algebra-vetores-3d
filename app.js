@@ -184,6 +184,16 @@ class Arrow {
     );
     this.group.add(this.dot);
 
+    // esfera invisível, maior, só pra pegar o mouse
+    this.hit = new THREE.Mesh(
+      new THREE.SphereGeometry(0.34, 10, 10),
+      new THREE.MeshBasicMaterial({ visible: false })
+    );
+    this.group.add(this.hit);
+    this.hot = 0;          // 0..1 destaque de hover/arrasto
+    this.hotTarget = 0;
+    this.snapNow = false;  // quando arrastando, segue o alvo sem suavizar
+
     this.drop = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]),
       new THREE.LineDashedMaterial({ color: this.color, dashSize: 0.14, gapSize: 0.1, transparent: true, opacity: 0.45 })
@@ -209,8 +219,9 @@ class Arrow {
   }
 
   tick(dt) {
-    const k = reduceMotion ? 1 : 1 - Math.exp(-dt * 9);
+    const k = reduceMotion || this.snapNow ? 1 : 1 - Math.exp(-dt * 9);
     this.current.lerp(this.target, k);
+    this.hot += (this.hotTarget - this.hot) * (1 - Math.exp(-dt * 14));
     this.originCurrent.lerp(this.origin, k);
     this.alpha += (this.alphaTarget - this.alpha) * (reduceMotion ? 1 : 1 - Math.exp(-dt * 8));
 
@@ -237,6 +248,8 @@ class Arrow {
     if (this.label) this.label.material.opacity = this.alpha;
 
     this.dot.position.copy(this.current);
+    this.dot.scale.setScalar(1 + this.hot * 1.1);
+    this.hit.position.copy(this.current);
     if (this.label) {
       if (this.labelAt === "mid") {
         this.label.position.copy(this.current).multiplyScalar(0.55).add(new THREE.Vector3(0.12, 0.18, 0.12));
@@ -258,6 +271,7 @@ class Arrow {
     this.group.removeFromParent();
     this.shaft.geometry.dispose(); this.head.geometry.dispose(); this.mat.dispose();
     this.dot.geometry.dispose(); this.dot.material.dispose();
+    this.hit.geometry.dispose(); this.hit.material.dispose();
     this.drop.geometry.dispose(); this.drop.material.dispose();
     if (this.label) { this.label.material.map.dispose(); this.label.material.dispose(); }
   }
@@ -319,6 +333,7 @@ function addVector({ x = 1, y = 2, z = 1, name, color } = {}, { animate = true }
     x, y, z,
   };
   v.arrow = new Arrow(v.color);
+  v.arrow.hit.userData.vec = v;
   v.arrow.alpha = 0;
   v.arrow.target.copy(toThree(v));
   if (!animate) v.arrow.current.copy(v.arrow.target);
@@ -549,6 +564,113 @@ document.getElementById("btn-add").addEventListener("click", () => {
   v.el.querySelector('[data-axis="x"]').select();
 });
 document.getElementById("btn-clear").addEventListener("click", clearAll);
+
+/* ---------- arrastar a ponta do vetor ---------- */
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+const hitPlane = new THREE.Plane();
+const hitPoint = new THREE.Vector3();
+let hover = null;
+let drag = null;   // { v, mode: "move" | "height", offset }
+
+const snap = (n) => Math.round(n * 2) / 2;
+
+function setPointer(e) {
+  const r = canvas.getBoundingClientRect();
+  pointer.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  raycaster.setFromCamera(pointer, camera);
+}
+
+function pickVector(e) {
+  setPointer(e);
+  const hits = raycaster.intersectObjects(vectors.map((v) => v.arrow.hit), false);
+  return hits.length ? hits[0].object.userData.vec : null;
+}
+
+function setHover(v) {
+  if (hover === v) return;
+  if (hover) hover.arrow.hotTarget = 0;
+  hover = v;
+  if (hover) hover.arrow.hotTarget = 1;
+  canvas.style.cursor = hover ? "grab" : "";
+}
+
+canvas.addEventListener("pointermove", (e) => {
+  if (drag) {
+    setPointer(e);
+    if (!raycaster.ray.intersectPlane(hitPlane, hitPoint)) return;
+    const v = drag.v;
+    if (drag.mode === "height") {
+      v.z = snap(hitPoint.y - drag.offset.y);
+    } else {
+      v.y = snap(hitPoint.x - drag.offset.x);   // three.x → math.y
+      v.x = snap(hitPoint.z - drag.offset.z);   // three.z → math.x
+    }
+    for (const axis of ["x", "y", "z"]) v.el.querySelector(`[data-axis="${axis}"]`).value = v[axis];
+    refreshVector(v);
+    return;
+  }
+  if (e.pointerType === "mouse") setHover(pickVector(e));
+});
+
+canvas.addEventListener("pointerdown", (e) => {
+  const v = pickVector(e);
+  if (!v) return;
+  e.preventDefault();
+  const tip = toThree(v);
+  const mode = e.shiftKey ? "height" : "move";
+  if (mode === "height") {
+    // plano vertical que contém a ponta e olha pra câmera
+    const n = camera.getWorldDirection(new THREE.Vector3());
+    n.y = 0; n.normalize();
+    hitPlane.setFromNormalAndCoplanarPoint(n, tip);
+  } else {
+    // plano horizontal na altura da ponta
+    hitPlane.set(new THREE.Vector3(0, 1, 0), -tip.y);
+  }
+  setPointer(e);
+  raycaster.ray.intersectPlane(hitPlane, hitPoint);
+  drag = { v, mode, offset: hitPoint.clone().sub(tip) };
+  v.arrow.snapNow = true;
+  v.arrow.hotTarget = 1;
+  v.el.classList.add("dragging");
+  controls.enabled = false;
+  canvas.setPointerCapture(e.pointerId);
+  canvas.style.cursor = mode === "height" ? "ns-resize" : "grabbing";
+});
+
+function endDrag() {
+  if (!drag) return;
+  drag.v.arrow.snapNow = false;
+  drag.v.arrow.hotTarget = hover === drag.v ? 1 : 0;
+  drag.v.el.classList.remove("dragging");
+  drag = null;
+  controls.enabled = true;
+  canvas.style.cursor = hover ? "grab" : "";
+}
+canvas.addEventListener("pointerup", endDrag);
+canvas.addEventListener("pointercancel", endDrag);
+addEventListener("keydown", (e) => {
+  if (e.key === "Shift" && drag && drag.mode === "move") {
+    // troca pra altura no meio do arrasto
+    const tip = toThree(drag.v);
+    const n = camera.getWorldDirection(new THREE.Vector3()); n.y = 0; n.normalize();
+    hitPlane.setFromNormalAndCoplanarPoint(n, tip);
+    raycaster.ray.intersectPlane(hitPlane, hitPoint);
+    drag.mode = "height"; drag.offset = hitPoint.clone().sub(tip);
+    canvas.style.cursor = "ns-resize";
+  }
+});
+addEventListener("keyup", (e) => {
+  if (e.key === "Shift" && drag && drag.mode === "height") {
+    const tip = toThree(drag.v);
+    hitPlane.set(new THREE.Vector3(0, 1, 0), -tip.y);
+    raycaster.ray.intersectPlane(hitPlane, hitPoint);
+    drag.mode = "move"; drag.offset = hitPoint.clone().sub(tip);
+    canvas.style.cursor = "grabbing";
+  }
+});
 
 /* ---------- ferramentas de câmera ---------- */
 
