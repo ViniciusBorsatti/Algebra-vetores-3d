@@ -226,7 +226,7 @@ button { cursor: pointer; }
   display: grid;
   place-items: center;
 }
-.remove:hover { background: rgba(232, 93, 74, 0.12); color: #c4432f; }
+.remove:hover { background: rgba(255, 59, 47, 0.12); color: #d92a1f; }
 
 .btn-add {
   width: 100%;
@@ -378,7 +378,7 @@ button { cursor: pointer; }
   text-align: right;
   transition: color 0.3s;
 }
-.ops-results dd.flash { color: #0e9e8a; }
+.ops-results dd.flash { color: #00a876; }
 
 /* ---------- camera tools ---------- */
 

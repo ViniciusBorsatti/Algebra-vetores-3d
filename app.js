@@ -10,7 +10,7 @@ import { OrbitControls } from "three/addons/OrbitControls.js";
 
 const toThree = (v) => new THREE.Vector3(v.y, v.z, v.x);
 
-const PALETTE = ["#e85d4a", "#0e9e8a", "#e0a200", "#7b5ce6", "#2f6fe4", "#d63e8c"];
+const PALETTE = ["#ff3b2f", "#00c389", "#ffb000", "#8a3ffc", "#1f7cff", "#ff2d8a", "#00b7ff"];
 const NAMES = ["u", "v", "w", "a", "b", "c", "d", "p", "q", "r"];
 const INK = 0x1b2233;
 const MUTED = 0x7d879a;
@@ -169,7 +169,8 @@ class Arrow {
     this.dashed = dashed;
 
     this.mat = new THREE.MeshStandardMaterial({
-      color: this.color, roughness: 0.55, metalness: 0.05,
+      color: this.color, roughness: 0.45, metalness: 0.0,
+      emissive: this.color, emissiveIntensity: 0.38,
       transparent: true, opacity,
     });
     this.shaft = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, 1, 18), this.mat);
@@ -214,6 +215,7 @@ class Arrow {
   setColor(hex) {
     this.color.set(hex);
     this.mat.color.set(hex);
+    this.mat.emissive.set(hex);
     this.dot.material.color.set(hex);
     this.drop.material.color.set(hex);
   }
@@ -287,8 +289,8 @@ const ops = { a: null, b: null, sum: false, diff: false, cross: false, para: fal
 
 const opArrows = {
   sum:   new Arrow("#1b2233", { opacity: 0.9, radius: 0.045, labelAt: "mid" }),
-  diff:  new Arrow("#5b6478", { opacity: 0.9, radius: 0.045, labelAt: "mid" }),
-  cross: new Arrow("#8a94a8", { opacity: 0.9, radius: 0.045, labelAt: "mid" }),
+  diff:  new Arrow("#6d28d9", { opacity: 0.9, radius: 0.045, labelAt: "mid" }),
+  cross: new Arrow("#0891b2", { opacity: 0.9, radius: 0.045, labelAt: "mid" }),
 };
 Object.values(opArrows).forEach((a) => { a.alphaTarget = 0; world.add(a.group); });
 
@@ -532,18 +534,18 @@ let axisLen = 0;
 
 const PRESETS = {
   aula: [
-    { name: "A", x: 2, y: -2, z: 3, color: "#2f6fe4" },
-    { name: "B", x: 1, y: 1, z: 5, color: "#0e9e8a" },
-    { name: "v", x: 1, y: 3, z: -4, color: "#e85d4a" },
+    { name: "A", x: 2, y: -2, z: 3, color: "#1f7cff" },
+    { name: "B", x: 1, y: 1, z: 5, color: "#00c389" },
+    { name: "v", x: 1, y: 3, z: -4, color: "#ff3b2f" },
   ],
   base: [
-    { name: "i", x: 1, y: 0, z: 0, color: "#e85d4a" },
-    { name: "j", x: 0, y: 1, z: 0, color: "#0e9e8a" },
-    { name: "k", x: 0, y: 0, z: 1, color: "#2f6fe4" },
+    { name: "i", x: 1, y: 0, z: 0, color: "#ff3b2f" },
+    { name: "j", x: 0, y: 1, z: 0, color: "#00c389" },
+    { name: "k", x: 0, y: 0, z: 1, color: "#1f7cff" },
   ],
   plano: [
-    { name: "u", x: 2, y: 5, z: 0, color: "#2f6fe4" },
-    { name: "v", x: 3, y: 1, z: 0, color: "#e85d4a" },
+    { name: "u", x: 2, y: 5, z: 0, color: "#8a3ffc" },
+    { name: "v", x: 3, y: 1, z: 0, color: "#ffb000" },
   ],
 };
 document.querySelectorAll("[data-preset]").forEach((btn) => {
