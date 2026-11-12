@@ -285,12 +285,14 @@ class Arrow {
 
 let nextId = 1;
 const vectors = [];           // { id, name, color, x, y, z, arrow, el }
-const ops = { a: null, b: null, sum: false, diff: false, cross: false, para: false };
+const ops = { a: null, b: null, sum: false, diff: false, cross: false, para: false, scale: false, proj: false, k: 2 };
 
 const opArrows = {
   sum:   new Arrow("#1b2233", { opacity: 0.9, radius: 0.045, labelAt: "mid" }),
   diff:  new Arrow("#6d28d9", { opacity: 0.9, radius: 0.045, labelAt: "mid" }),
   cross: new Arrow("#0891b2", { opacity: 0.9, radius: 0.045, labelAt: "mid" }),
+  scale: new Arrow("#1b2233", { opacity: 0.55, radius: 0.05 }),
+  proj:  new Arrow("#e08a00", { opacity: 0.95, radius: 0.05, labelAt: "mid" }),
 };
 Object.values(opArrows).forEach((a) => { a.alphaTarget = 0; world.add(a.group); });
 
@@ -301,6 +303,12 @@ const paraGeo = new THREE.BufferGeometry().setFromPoints([
 const para = new THREE.LineSegments(paraGeo, paraMat);
 world.add(para);
 let paraAlpha = 0;
+
+// perpendicular da projeção: da ponta de a até a ponta da projeção
+const perpMat = new THREE.LineDashedMaterial({ color: 0xe08a00, dashSize: 0.14, gapSize: 0.1, transparent: true, opacity: 0 });
+const perp = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), perpMat);
+world.add(perp);
+let perpAlpha = 0;
 
 /* ------------------------------------------------------------------ */
 /*  UI                                                                  */
@@ -441,6 +449,32 @@ document.querySelectorAll(".chip").forEach((chip) => {
   });
 });
 
+const kRow = document.getElementById("k-row");
+const kRange = document.getElementById("k-range");
+const kVal = document.getElementById("k-val");
+kRange.addEventListener("input", () => {
+  ops.k = parseFloat(kRange.value);
+  kVal.textContent = fmt(ops.k);
+  updateOps();
+});
+const btnExplain = document.getElementById("btn-explain");
+const explainEl = document.getElementById("ops-explain");
+btnExplain.addEventListener("click", () => {
+  const open = explainEl.hidden;
+  explainEl.hidden = !open;
+  btnExplain.setAttribute("aria-expanded", String(open));
+  btnExplain.textContent = open ? "Esconder as contas" : "Ver as contas";
+});
+const E = {
+  sum: document.getElementById("e-sum"),
+  dot: document.getElementById("e-dot"),
+  mod: document.getElementById("e-mod"),
+  angle: document.getElementById("e-angle"),
+  cross: document.getElementById("e-cross"),
+  proj: document.getElementById("e-proj"),
+};
+const sg = (n) => (n < 0 ? `(${fmt(n)})` : fmt(n));
+
 const R = {
   modA: document.getElementById("r-mod-a"),
   modB: document.getElementById("r-mod-b"),
@@ -463,9 +497,11 @@ function updateOps() {
   if (!a || !b) {
     Object.values(R).forEach((el) => setResult(el, "—"));
     Object.values(opArrows).forEach((ar) => (ar.alphaTarget = 0));
-    paraAlpha = 0;
+    Object.values(E).forEach((el) => (el.textContent = "—"));
+    paraAlpha = 0; perpAlpha = 0;
     return;
   }
+  kRow.hidden = !ops.scale;
 
   const ma = Math.hypot(a.x, a.y, a.z);
   const mb = Math.hypot(b.x, b.y, b.z);
@@ -505,6 +541,39 @@ function updateOps() {
   C.target.copy(toThree({ x: cx, y: cy, z: cz }));
   C.setLabel(`${a.name} × ${b.name}`, coordsText({ x: cx, y: cy, z: cz }));
 
+  // escalar k·a: mesma direção de a, esticado por k
+  const K = opArrows.scale;
+  K.alphaTarget = ops.scale ? 1 : 0;
+  K.setColor(a.color);
+  K.origin.set(0, 0, 0);
+  K.target.copy(A).multiplyScalar(ops.k);
+  K.setLabel(`${fmt(ops.k)}·${a.name}`, coordsText({ x: ops.k * a.x, y: ops.k * a.y, z: ops.k * a.z }));
+
+  // projeção de a sobre b: (a·b / |b|²) · b
+  const Pj = opArrows.proj;
+  const pf = mb > 1e-9 ? dot / (mb * mb) : 0;
+  const projV = { x: pf * b.x, y: pf * b.y, z: pf * b.z };
+  Pj.alphaTarget = ops.proj && !same && mb > 1e-9 ? 1 : 0;
+  Pj.origin.set(0, 0, 0);
+  Pj.target.copy(toThree(projV));
+  Pj.setLabel(`proj`, coordsText(projV));
+  perpAlpha = ops.proj && !same && mb > 1e-9 ? 0.9 : 0;
+  const PP = perp.geometry.attributes.position;
+  const PT = toThree(projV);
+  PP.setXYZ(0, A.x, A.y, A.z); PP.setXYZ(1, PT.x, PT.y, PT.z);
+  PP.needsUpdate = true;
+  perp.computeLineDistances();
+
+  // contas abertas
+  E.sum.textContent = `(${fmt(a.x)}+${sg(b.x)}, ${fmt(a.y)}+${sg(b.y)}, ${fmt(a.z)}+${sg(b.z)}) = ${coordsText({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z })}`;
+  E.dot.textContent = `${sg(a.x)}·${sg(b.x)} + ${sg(a.y)}·${sg(b.y)} + ${sg(a.z)}·${sg(b.z)} = ${fmt(dot)}`;
+  E.mod.textContent = `|${a.name}| = √(${sg(a.x)}² + ${sg(a.y)}² + ${sg(a.z)}²) = √${fmt(ma * ma)} = ${fmt(ma)}`;
+  E.angle.textContent = Number.isFinite(ang)
+    ? `cos θ = ${a.name}·${b.name} / (|${a.name}|·|${b.name}|) = ${fmt(dot)} / (${fmt(ma)}·${fmt(mb)}) = ${fmt(cos)} → θ = ${fmt(ang)}°`
+    : "—";
+  E.cross.textContent = `(${sg(a.y)}·${sg(b.z)} − ${sg(a.z)}·${sg(b.y)}, ${sg(a.z)}·${sg(b.x)} − ${sg(a.x)}·${sg(b.z)}, ${sg(a.x)}·${sg(b.y)} − ${sg(a.y)}·${sg(b.x)}) = ${coordsText({ x: cx, y: cy, z: cz })}`;
+  E.proj.textContent = mb > 1e-9 ? `(${a.name}·${b.name} / |${b.name}|²)·${b.name} = (${fmt(dot)} / ${fmt(mb * mb)})·${b.name} = ${coordsText(projV)}` : "—";
+
   // paralelogramo: tracejados paralelos
   paraAlpha = ops.para && !same ? 0.9 : 0;
   const P = paraGeo.attributes.position;
@@ -525,6 +594,9 @@ function fitAxes() {
   const a = vectors.find((v) => v.id === ops.a), b = vectors.find((v) => v.id === ops.b);
   if (a && b && (ops.sum || ops.para)) {
     m = Math.max(m, Math.abs(a.x + b.x), Math.abs(a.y + b.y), Math.abs(a.z + b.z));
+  }
+  if (a && ops.scale) {
+    m = Math.max(m, Math.abs(ops.k * a.x), Math.abs(ops.k * a.y), Math.abs(ops.k * a.z));
   }
   axisTarget = Math.ceil(m) + 1.5;
 }
@@ -739,6 +811,8 @@ function frame() {
   for (const ar of Object.values(opArrows)) ar.tick(dt);
   paraMat.opacity += (paraAlpha - paraMat.opacity) * (reduceMotion ? 1 : 1 - Math.exp(-dt * 8));
   para.visible = paraMat.opacity > 0.01;
+  perpMat.opacity += (perpAlpha - perpMat.opacity) * (reduceMotion ? 1 : 1 - Math.exp(-dt * 8));
+  perp.visible = perpMat.opacity > 0.01;
 
   controls.update();
   scaleLabels();

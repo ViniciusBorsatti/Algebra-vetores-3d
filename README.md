@@ -21,7 +21,10 @@ O projeto foi feito para a instituição: a ideia é que professores e estudante
   - **Subtração** — seta da ponta de b até a ponta de a
   - **Produto vetorial** — a × b, perpendicular aos dois
   - **Paralelogramo** — as linhas tracejadas que fecham a figura
+  - **Escalar k·a** — controle deslizante de −3 a 3; k negativo inverte o sentido
+  - **Projeção** de a sobre b, com a perpendicular tracejada
   - Módulo de cada um, produto escalar e o ângulo entre eles
+  - **Ver as contas** — abre cada operação com a conta feita passo a passo (soma, produto escalar, módulo, ângulo, produto vetorial, projeção)
 - Exemplos prontos: os vetores da aula, a base canônica e vetores no plano
 
 ## Convenção dos eixos

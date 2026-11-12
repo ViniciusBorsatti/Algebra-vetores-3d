@@ -72,6 +72,8 @@
       <button type="button" class="chip" data-op="diff">Subtração</button>
       <button type="button" class="chip" data-op="cross">Produto vetorial</button>
       <button type="button" class="chip" data-op="para">Paralelogramo</button>
+      <button type="button" class="chip" data-op="scale">Escalar k·a</button>
+      <button type="button" class="chip" data-op="proj">Projeção</button>
     </div>
 
     <dl class="ops-results" id="ops-results">
@@ -80,6 +82,24 @@
       <div><dt>a · b</dt><dd id="r-dot">—</dd></div>
       <div><dt>Ângulo</dt><dd id="r-angle">—</dd></div>
     </dl>
+
+    <button type="button" class="btn-explain" id="btn-explain" aria-expanded="false">Ver as contas</button>
+
+    <div class="k-row" id="k-row" hidden>
+      <span>k =</span>
+      <input type="range" id="k-range" min="-3" max="3" step="0.5" value="2" aria-label="Valor do escalar k">
+      <output id="k-val">2</output>
+      <span class="k-hint">arraste: k negativo inverte o sentido, |k| &lt; 1 encolhe</span>
+    </div>
+
+    <div class="ops-explain" id="ops-explain" hidden>
+      <div><span>Soma</span><code id="e-sum">—</code></div>
+      <div><span>Produto escalar</span><code id="e-dot">—</code></div>
+      <div><span>Módulo</span><code id="e-mod">—</code></div>
+      <div><span>Ângulo</span><code id="e-angle">—</code></div>
+      <div><span>Produto vetorial</span><code id="e-cross">—</code></div>
+      <div><span>Projeção de a em b</span><code id="e-proj">—</code></div>
+    </div>
   </section>
 
   <nav class="view-tools" aria-label="Câmera">
