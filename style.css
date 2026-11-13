@@ -53,7 +53,7 @@ button { cursor: pointer; }
   box-shadow: 8px 0 40px -24px rgba(27, 34, 51, 0.35);
   z-index: 2;
   transition: transform 0.55s var(--ease);
-  animation: side-in 0.9s var(--ease) both;
+  animation: side-in 0.9s var(--ease) backwards;
 }
 
 .stage {
