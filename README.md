@@ -15,17 +15,23 @@ O projeto foi feito para a instituição: a ideia é que professores e estudante
 - Adicionar quantos vetores quiser, cada um com nome, cor e coordenadas (x, y, z)
 - Editar os valores e ver a seta deslizar até a nova posição
 - Arrastar a ponta da seta com o mouse para mover o vetor; com Shift, muda a altura (z)
-- Girar (arrastar), aproximar (rolar) e voltar à vista inicial
+- Girar (arrastar o fundo), aproximar (rolar) e voltar à vista inicial
 - Escolher dois vetores e ver:
-  - **Soma** — seta da origem até a + b
+  - **Soma** — b viaja até a ponta de a (regra ponta a ponta) e a + b fecha o caminho
   - **Subtração** — seta da ponta de b até a ponta de a
-  - **Produto vetorial** — a × b, perpendicular aos dois
   - **Paralelogramo** — as linhas tracejadas que fecham a figura
-  - **Escalar k·a** — controle deslizante de −3 a 3; k negativo inverte o sentido
+  - **Escalar k·a** — controle de −3 a 3, com botão de play que anima o k
+  - **Ângulo** — arco entre os dois vetores, com o valor de θ
   - **Projeção** de a sobre b, com a perpendicular tracejada
-  - Módulo de cada um, produto escalar e o ângulo entre eles
-  - **Ver as contas** — abre cada operação com a conta feita passo a passo (soma, produto escalar, módulo, ângulo, produto vetorial, projeção)
+  - **Produto vetorial** — a × b, perpendicular aos dois
+  - Módulo de cada um, produto escalar e ângulo, sempre atualizados
+  - **Ver as contas** — cada operação com a conta feita passo a passo
+- **Demonstração** — o sistema se apresenta sozinho, operação por operação, com legenda
 - Exemplos prontos: os vetores da aula, a base canônica e vetores no plano
+
+## Como a tela é organizada
+
+Um painel fixo à esquerda concentra tudo o que se digita e se lê (vetores, operações, resultados e contas). A cena 3D ocupa só o espaço livre ao lado, então nenhum cartão fica por cima dos vetores, nem em projetor de baixa resolução. O painel pode ser recolhido pela seta do cabeçalho; no celular ele vira uma gaveta na parte de baixo.
 
 ## Convenção dos eixos
 
